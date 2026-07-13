@@ -16,7 +16,16 @@ export const STATUS_STEPS = [
   { key: "transit", label: "In transit" },
   { key: "delivered", label: "Delivered" },
 ];
-
+export const DRIVER_DELIVERIES = [
+  {
+    id: "SGT-48312",
+    pickup: "Unit 29, Pongola River Drive, Norkem Park",
+    dropoff: "44 Rivonia Rd, Sandton",
+    status: "picked", // pending, picked, delivered
+    eta: "14 min",
+    customer: "Dimakatso L.",
+  },
+];
 export const PAST_ORDERS = [
   {
     id: "SGT-48210",
