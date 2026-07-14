@@ -1,5 +1,5 @@
 import { PackageCheck, XCircle } from "lucide-react";
-import { PAST_ORDERS } from "../data";
+import { PAST_ORDERS } from "../../data";
 
 export default function Orders({ goTo }) {
   return (

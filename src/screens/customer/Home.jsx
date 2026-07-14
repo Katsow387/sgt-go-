@@ -1,5 +1,5 @@
 import { ArrowRight, MapPin, Package, ShieldCheck } from "lucide-react";
-import { RETAILERS, SAVED_PLACES } from "../data";
+import { RETAILERS, SAVED_PLACES } from "../../data";
 
 export default function Home({ goTo }) {
   return (

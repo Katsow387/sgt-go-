@@ -26,6 +26,7 @@ export const DRIVER_DELIVERIES = [
     customer: "Dimakatso L.",
   },
 ];
+
 export const PAST_ORDERS = [
   {
     id: "SGT-48210",

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Phone, MessageCircle, Star } from "lucide-react";
-import { STATUS_STEPS, DRIVER } from "../data";
+import { STATUS_STEPS, DRIVER } from "../../data";
 
 export default function Track() {
   const [stepIndex, setStepIndex] = useState(2); // "in transit"
