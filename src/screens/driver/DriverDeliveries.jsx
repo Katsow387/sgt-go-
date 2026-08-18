@@ -1,4 +1,4 @@
-import { ChevronLeft, MapPin, PackageCheck, Clock } from "lucide-react";
+import { ChevronLeft, MapPin, PackageCheck, Clock, CheckCircle } from "lucide-react";
 
 const DELIVERIES = [
   { id: "SGT-48312", pickup: "Unit 29, Norkem Park", dropoff: "44 Rivonia Rd", status: "picked", eta: "14 min" },

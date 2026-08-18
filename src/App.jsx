@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Home as HomeIcon, PackagePlus, MapPinned, User, ClipboardList, Wallet, Boxes, BarChart3, LayoutDashboard, Users, AlertTriangle } from "lucide-react";
 import Logo from "./components/Logo";
 import BottomNav from "./components/BottomNav";
 
@@ -19,9 +20,64 @@ import DriverHome from "./screens/driver/DriverHome";
 import DriverDeliveries from "./screens/driver/DriverDeliveries";
 import DriverDeliveryDetail from "./screens/driver/DriverDeliveryDetail";
 
+// Merchant screens
+import MerchantHome from "./screens/merchant/MerchantHome";
+import MerchantOrders from "./screens/merchant/MerchantOrders";
+import MerchantPayments from "./screens/merchant/MerchantPayments";
+
+// Supplier screens
+import SupplierHome from "./screens/supplier/SupplierHome";
+import SupplierInventory from "./screens/supplier/SupplierInventory";
+import SupplierReports from "./screens/supplier/SupplierReports";
+
+// Admin screens
+import AdminHome from "./screens/admin/AdminHome";
+import AdminManage from "./screens/admin/AdminManage";
+import AdminDisputes from "./screens/admin/AdminDisputes";
+
+// Shared
+import BusinessProfile from "./screens/shared/BusinessProfile";
+import { MERCHANT, SUPPLIER } from "./data";
+
+const ROLE_HOME = {
+  customer: "customerHome",
+  merchant: "merchantHome",
+  supplier: "supplierHome",
+  driver: "driverHome",
+  admin: "adminHome",
+};
+
+const CUSTOMER_TABS = [
+  { key: "home", label: "Home", icon: HomeIcon },
+  { key: "new", label: "Send", icon: PackagePlus },
+  { key: "track", label: "Track", icon: MapPinned },
+  { key: "profile", label: "Profile", icon: User },
+];
+
+const MERCHANT_TABS = [
+  { key: "home", label: "Home", icon: HomeIcon },
+  { key: "orders", label: "Orders", icon: ClipboardList },
+  { key: "payments", label: "Payments", icon: Wallet },
+  { key: "profile", label: "Profile", icon: User },
+];
+
+const SUPPLIER_TABS = [
+  { key: "home", label: "Home", icon: HomeIcon },
+  { key: "inventory", label: "Stock", icon: Boxes },
+  { key: "reports", label: "Reports", icon: BarChart3 },
+  { key: "profile", label: "Profile", icon: User },
+];
+
+const ADMIN_TABS = [
+  { key: "home", label: "Home", icon: LayoutDashboard },
+  { key: "manage", label: "Manage", icon: Users },
+  { key: "disputes", label: "Disputes", icon: AlertTriangle },
+  { key: "profile", label: "Profile", icon: User },
+];
+
 export default function App() {
   const [user, setUser] = useState(null); // { name, email, role }
-  const [screen, setScreen] = useState("signIn"); // screens: signIn, signUp, roleSelect, customerHome, customerNew, customerTrack, customerOrders, customerProfile, driverHome, driverDeliveries, driverDeliveryDetail
+  const [screen, setScreen] = useState("signIn");
   const [deliveryId, setDeliveryId] = useState(null); // for driver detail
 
   const handleSignIn = (userData) => {
@@ -36,11 +92,12 @@ export default function App() {
 
   const handleRoleSelect = (role) => {
     setUser({ ...user, role });
-    if (role === "customer") {
-      setScreen("customerHome");
-    } else {
-      setScreen("driverHome");
-    }
+    setScreen(ROLE_HOME[role] || "customerHome");
+  };
+
+  const handleSignOut = () => {
+    setUser(null);
+    setScreen("signIn");
   };
 
   const goTo = (target, payload) => {
@@ -82,13 +139,85 @@ export default function App() {
       case "driverDeliveryDetail":
         return <DriverDeliveryDetail goTo={goTo} deliveryId={deliveryId} />;
 
+      // Merchant screens
+      case "merchantHome":
+        return <MerchantHome goTo={goTo} />;
+      case "merchantOrders":
+        return <MerchantOrders goTo={goTo} />;
+      case "merchantPayments":
+        return <MerchantPayments goTo={goTo} />;
+      case "merchantProfile":
+        return (
+          <BusinessProfile
+            business={MERCHANT.business}
+            contact={MERCHANT.contact}
+            subtitle={MERCHANT.tier}
+            onSignOut={handleSignOut}
+          />
+        );
+
+      // Supplier screens
+      case "supplierHome":
+        return <SupplierHome goTo={goTo} />;
+      case "supplierInventory":
+        return <SupplierInventory goTo={goTo} />;
+      case "supplierReports":
+        return <SupplierReports goTo={goTo} />;
+      case "supplierProfile":
+        return (
+          <BusinessProfile
+            business={SUPPLIER.business}
+            contact={SUPPLIER.contact}
+            subtitle={`Contact: ${SUPPLIER.contact}`}
+            onSignOut={handleSignOut}
+          />
+        );
+
+      // Admin screens
+      case "adminHome":
+        return <AdminHome goTo={goTo} />;
+      case "adminManage":
+        return <AdminManage goTo={goTo} />;
+      case "adminDisputes":
+        return <AdminDisputes goTo={goTo} />;
+      case "adminProfile":
+        return (
+          <BusinessProfile
+            business="SGT GO Admin"
+            contact={user?.name || "Admin"}
+            subtitle="Platform administrator"
+            onSignOut={handleSignOut}
+          />
+        );
+
       default:
         return <SignIn onSignIn={handleSignIn} goToSignUp={() => setScreen("signUp")} />;
     }
   };
 
-  // BottomNav only for customer screens (you can add a driver nav too)
-  const showBottomNav = screen.startsWith("customer") && screen !== "customerNew";
+  // Bottom nav config per role
+  const NAV_CONFIG = {
+    customer: { prefix: "customer", tabs: CUSTOMER_TABS, exclude: ["customerNew"] },
+    merchant: { prefix: "merchant", tabs: MERCHANT_TABS, exclude: [] },
+    supplier: { prefix: "supplier", tabs: SUPPLIER_TABS, exclude: [] },
+    admin: { prefix: "admin", tabs: ADMIN_TABS, exclude: [] },
+  };
+
+  const roleNav = user?.role ? NAV_CONFIG[user.role] : null;
+  const showBottomNav =
+    roleNav &&
+    screen.startsWith(roleNav.prefix) &&
+    !roleNav.exclude.includes(screen);
+
+  const activeTabKey = showBottomNav
+    ? screen === "customerNew"
+      ? "new"
+      : screen.replace(roleNav.prefix, "").toLowerCase()
+    : null;
+
+  const handleNavChange = (tab) => {
+    setScreen(`${roleNav.prefix}${tab.charAt(0).toUpperCase()}${tab.slice(1)}`);
+  };
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-[#DCE6F5] font-body py-6">
@@ -104,10 +233,7 @@ export default function App() {
         </div>
 
         {showBottomNav && (
-          <BottomNav
-            active={screen === "customerNew" ? "new" : screen.replace("customer", "").toLowerCase()}
-            onChange={(tab) => setScreen(`customer${tab.charAt(0).toUpperCase() + tab.slice(1)}`)}
-          />
+          <BottomNav active={activeTabKey} onChange={handleNavChange} tabs={roleNav.tabs} />
         )}
       </div>
     </div>

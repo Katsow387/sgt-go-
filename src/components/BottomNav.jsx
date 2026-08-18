@@ -1,17 +1,19 @@
 import { Home, PackagePlus, MapPinned, User } from "lucide-react";
 
-const TABS = [
+const DEFAULT_TABS = [
   { key: "home", label: "Home", icon: Home },
   { key: "new", label: "Send", icon: PackagePlus },
   { key: "track", label: "Track", icon: MapPinned },
   { key: "profile", label: "Profile", icon: User },
 ];
 
-export default function BottomNav({ active, onChange }) {
+const COLS = { 3: "grid-cols-3", 4: "grid-cols-4", 5: "grid-cols-5" };
+
+export default function BottomNav({ active, onChange, tabs = DEFAULT_TABS }) {
   return (
     <nav className="absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur border-t border-sky-mid px-2 pt-2 pb-[max(10px,env(safe-area-inset-bottom))] rounded-b-[2.2rem]">
-      <div className="grid grid-cols-4">
-        {TABS.map(({ key, label, icon: Icon }) => {
+      <div className={`grid ${COLS[tabs.length] || "grid-cols-4"}`}>
+        {tabs.map(({ key, label, icon: Icon }) => {
           const isActive = active === key;
           return (
             <button

@@ -33,7 +33,7 @@ export default function SignUp({ onSignUp, goToSignIn }) {
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full bg-transparent outline-none text-sm text-ink placeholder:text-slate/60"
-              placeholder="Thabo Mokoena"
+              placeholder="Full Name"
               required
             />
           </div>
