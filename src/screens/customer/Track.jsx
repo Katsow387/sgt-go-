@@ -1,126 +1,115 @@
-import { useEffect, useState } from "react";
-import { Phone, MessageCircle, Star } from "lucide-react";
-import { STATUS_STEPS, DRIVER } from "../../data";
+import { STATUS_STEPS, DRIVER, DRIVER_DELIVERIES } from "../../data";
+import { Phone, MessageCircle, Check } from "lucide-react";
 
 export default function Track() {
-  const [stepIndex, setStepIndex] = useState(2); // "in transit"
-
-  useEffect(() => {
-    const id = setInterval(() => {
-      setStepIndex((i) => (i < STATUS_STEPS.length - 1 ? i + 1 : i));
-    }, 6000);
-    return () => clearInterval(id);
-  }, []);
+  const delivery = DRIVER_DELIVERIES[0];
+  const currentIndex = STATUS_STEPS.findIndex((s) => s.key === delivery.status);
 
   return (
-    <div className="h-full overflow-y-auto pb-28">
-      {/* Route map */}
-      <div className="relative h-56 bg-navy-deep overflow-hidden">
-        <svg viewBox="0 0 375 224" className="w-full h-full" preserveAspectRatio="none">
-          <defs>
-            <linearGradient id="mapfade" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#0B2A5B" />
-              <stop offset="100%" stopColor="#071A3D" />
-            </linearGradient>
-          </defs>
-          <rect width="375" height="224" fill="url(#mapfade)" />
-          {[...Array(6)].map((_, i) => (
-            <line key={i} x1={i * 70} y1="0" x2={i * 70} y2="224" stroke="#12397D" strokeWidth="1" opacity="0.4" />
-          ))}
-          {[...Array(5)].map((_, i) => (
-            <line key={i} x1="0" y1={i * 56} x2="375" y2={i * 56} stroke="#12397D" strokeWidth="1" opacity="0.4" />
-          ))}
+    <div className="p-5 md:p-10 max-w-5xl mx-auto fade-up pb-24 md:pb-10">
+      <h1 className="font-display font-800 text-2xl md:text-3xl text-navy tracking-tight mb-1">
+        Track delivery
+      </h1>
+      <p className="text-sm text-slate mb-6">
+        Order <span className="font-mono font-semibold text-ink">{delivery.id}</span> · ETA{" "}
+        <span className="font-semibold text-route">{delivery.eta}</span>
+      </p>
 
-          <path
-            id="routePath"
-            d="M40 180 C 110 190, 130 110, 190 110 S 300 60, 340 50"
-            stroke="#5B84C4"
-            strokeWidth="2"
-            fill="none"
-          />
-          <path
-            d="M40 180 C 110 190, 130 110, 190 110 S 300 60, 340 50"
-            stroke="#EAF2FC"
-            strokeWidth="2"
-            strokeDasharray="6 8"
-            fill="none"
-            className="route-line"
-          />
-
-          <circle cx="40" cy="180" r="5" fill="#F5A623" />
-          <circle cx="340" cy="50" r="5" fill="#1768D1" />
-          <circle cx="340" cy="50" r="9" fill="#1768D1" opacity="0.35" className="pulse-ring" />
-
-          <circle r="6" fill="#F5A623" stroke="#071A3D" strokeWidth="2">
-            <animateMotion dur="5s" repeatCount="indefinite" rotate="auto">
-              <mpath href="#routePath" />
-            </animateMotion>
-          </circle>
-        </svg>
-
-        <div className="absolute top-4 left-5 right-5 bg-white/95 backdrop-blur rounded-xl px-4 py-2.5 flex items-center justify-between shadow-float">
-          <div>
-            <p className="text-[10px] font-mono uppercase tracking-wide text-slate">Order</p>
-            <p className="font-display font-bold text-[13px] text-navy">SGT-48312</p>
-          </div>
-          <div className="text-right">
-            <p className="text-[10px] font-mono uppercase tracking-wide text-slate">ETA</p>
-            <p className="font-display font-bold text-[13px] text-route">{DRIVER.eta}</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="px-5 pt-5">
-        {/* Status timeline */}
-        <div className="bg-white rounded-xl2 shadow-card p-4 mb-5">
-          <div className="flex items-center">
-            {STATUS_STEPS.map((step, i) => (
-              <div key={step.key} className="flex-1 flex items-center last:flex-none">
-                <div className="flex flex-col items-center gap-1.5">
+      <div className="grid lg:grid-cols-3 gap-6">
+        {/* Map */}
+        <div className="lg:col-span-2 bg-white rounded-xl2 shadow-card border border-sky-mid overflow-hidden">
+          <svg viewBox="0 0 600 320" className="w-full h-64 md:h-80 bg-sky">
+            <path
+              d="M60 250 C 180 250, 200 100, 320 100 S 480 60, 540 70"
+              stroke="#CFE2FA"
+              strokeWidth="10"
+              fill="none"
+              strokeLinecap="round"
+            />
+            <path
+              d="M60 250 C 180 250, 200 100, 320 100 S 480 60, 540 70"
+              stroke="#1768D1"
+              strokeWidth="4"
+              fill="none"
+              strokeLinecap="round"
+              className="route-line"
+            />
+            <circle cx="60" cy="250" r="8" fill="#0B2A5B" />
+            <circle cx="320" cy="100" r="9" fill="#1768D1" className="pulse-ring" />
+            <circle cx="320" cy="100" r="9" fill="#1768D1" />
+            <circle cx="540" cy="70" r="8" fill="#F5A623" />
+          </svg>
+          <div className="p-6 border-t border-sky-mid">
+            <div className="flex items-center justify-between">
+              {STATUS_STEPS.map((step, i) => (
+                <div key={step.key} className="flex-1 flex flex-col items-center relative">
+                  {i > 0 && (
+                    <div
+                      className={`absolute top-3.5 right-1/2 w-full h-0.5 ${
+                        i <= currentIndex ? "bg-route" : "bg-sky-mid"
+                      }`}
+                    />
+                  )}
                   <div
-                    className={`w-3 h-3 rounded-full ${
-                      i <= stepIndex ? "bg-route" : "bg-sky-mid"
+                    className={`relative z-10 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
+                      i <= currentIndex
+                        ? "bg-route text-white"
+                        : "bg-sky-mid text-slate"
                     }`}
-                  />
+                  >
+                    {i < currentIndex ? <Check className="w-3.5 h-3.5" /> : i + 1}
+                  </div>
                   <span
-                    className={`text-[9.5px] font-medium text-center w-14 leading-tight ${
-                      i <= stepIndex ? "text-navy" : "text-slate/60"
+                    className={`mt-2 text-[11px] font-medium text-center ${
+                      i <= currentIndex ? "text-navy" : "text-slate"
                     }`}
                   >
                     {step.label}
                   </span>
                 </div>
-                {i < STATUS_STEPS.length - 1 && (
-                  <div
-                    className={`h-[2px] flex-1 -mt-4 ${
-                      i < stepIndex ? "bg-route" : "bg-sky-mid"
-                    }`}
-                  />
-                )}
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Driver card */}
-        <div className="bg-white rounded-xl2 shadow-card p-4 flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-navy text-white flex items-center justify-center font-display font-bold">
-            TM
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-display font-bold text-[13.5px] text-ink">{DRIVER.name}</p>
-            <p className="text-[11.5px] text-slate">{DRIVER.vehicle}</p>
-            <div className="flex items-center gap-1 mt-0.5">
-              <Star size={11} className="fill-signal text-signal" />
-              <span className="text-[11px] text-slate font-medium">{DRIVER.rating}</span>
+        {/* Driver + details */}
+        <div className="space-y-5">
+          <div className="bg-white rounded-xl2 shadow-card border border-sky-mid p-6">
+            <p className="font-mono text-[11px] uppercase tracking-wider text-route mb-3">
+              Your driver
+            </p>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-full bg-navy flex items-center justify-center font-display font-700 text-white">
+                {DRIVER.name.charAt(0)}
+              </div>
+              <div>
+                <p className="font-semibold text-ink text-sm">{DRIVER.name}</p>
+                <p className="text-xs text-slate">{DRIVER.vehicle}</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button className="flex-1 flex items-center justify-center gap-1.5 border border-sky-mid rounded-xl py-2.5 text-sm font-semibold text-ink hover:border-route hover:text-route transition-colors">
+                <Phone className="w-4 h-4" /> Call
+              </button>
+              <button className="flex-1 flex items-center justify-center gap-1.5 border border-sky-mid rounded-xl py-2.5 text-sm font-semibold text-ink hover:border-route hover:text-route transition-colors">
+                <MessageCircle className="w-4 h-4" /> Chat
+              </button>
             </div>
           </div>
-          <button className="w-9 h-9 rounded-full bg-sky text-route flex items-center justify-center">
-            <MessageCircle size={16} />
-          </button>
-          <button className="w-9 h-9 rounded-full bg-navy text-white flex items-center justify-center">
-            <Phone size={16} />
-          </button>
+
+          <div className="bg-white rounded-xl2 shadow-card border border-sky-mid p-6 space-y-3">
+            <p className="font-mono text-[11px] uppercase tracking-wider text-route mb-1">
+              Delivery details
+            </p>
+            <div>
+              <p className="text-xs text-slate">Pickup</p>
+              <p className="text-sm font-medium text-ink">{delivery.pickup}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate">Drop-off</p>
+              <p className="text-sm font-medium text-ink">{delivery.dropoff}</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

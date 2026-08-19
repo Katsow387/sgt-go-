@@ -1,45 +1,47 @@
-import { PackageCheck, XCircle } from "lucide-react";
 import { PAST_ORDERS } from "../../data";
+import PageHeader from "../../components/PageHeader";
+import { Package, ChevronRight } from "lucide-react";
+
+const STATUS_STYLES = {
+  Delivered: "bg-emerald-50 text-emerald-600",
+  Cancelled: "bg-rose-50 text-rose-600",
+};
 
 export default function Orders({ goTo }) {
   return (
-    <div className="px-5 pt-6 pb-28 h-full overflow-y-auto">
-      <h1 className="font-display font-bold text-lg text-navy mb-5">Your orders</h1>
-      <div className="space-y-3">
-        {PAST_ORDERS.map((o) => {
-          const delivered = o.status === "Delivered";
-          return (
-            <button
-              key={o.id}
-              onClick={() => delivered && goTo("track")}
-              className="w-full text-left bg-white rounded-xl2 shadow-card p-4 flex items-center gap-3"
-            >
+    <div className="p-5 md:p-10 max-w-4xl mx-auto fade-up pb-24 md:pb-10">
+      <PageHeader eyebrow="History" title="Your orders" />
+
+      <div className="bg-white rounded-xl2 shadow-card border border-sky-mid divide-y divide-sky-mid">
+        {PAST_ORDERS.map((o) => (
+          <button
+            key={o.id}
+            onClick={() => goTo("customerTrack")}
+            className="w-full flex items-center gap-4 p-5 text-left hover:bg-sky/50 transition-colors"
+          >
+            <div className="w-11 h-11 rounded-full bg-sky flex items-center justify-center shrink-0">
+              <Package className="w-5 h-5 text-route" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <p className="font-semibold text-ink text-sm">{o.retailer}</p>
+                <span className="text-[11px] font-mono text-slate">{o.id}</span>
+              </div>
+              <p className="text-xs text-slate">{o.date}</p>
+            </div>
+            <div className="text-right">
+              <p className="font-display font-700 text-sm text-navy mb-1">{o.total}</p>
               <span
-                className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
-                  delivered ? "bg-sky text-route" : "bg-red-50 text-red-400"
+                className={`inline-block text-[11px] font-semibold px-2.5 py-1 rounded-full ${
+                  STATUS_STYLES[o.status] || "bg-sky text-navy"
                 }`}
               >
-                {delivered ? <PackageCheck size={18} /> : <XCircle size={18} />}
+                {o.status}
               </span>
-              <div className="flex-1 min-w-0">
-                <p className="font-display font-semibold text-[13px] text-ink">
-                  {o.retailer} · <span className="font-mono text-[11.5px] text-slate">{o.id}</span>
-                </p>
-                <p className="text-[11.5px] text-slate">{o.date}</p>
-              </div>
-              <div className="text-right">
-                <p className="font-mono font-semibold text-[13px] text-navy">{o.total}</p>
-                <p
-                  className={`text-[10.5px] font-medium ${
-                    delivered ? "text-route" : "text-red-400"
-                  }`}
-                >
-                  {o.status}
-                </p>
-              </div>
-            </button>
-          );
-        })}
+            </div>
+            <ChevronRight className="w-4 h-4 text-slate shrink-0" />
+          </button>
+        ))}
       </div>
     </div>
   );

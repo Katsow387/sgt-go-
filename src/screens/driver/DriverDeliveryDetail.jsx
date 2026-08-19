@@ -1,90 +1,96 @@
 import { useState } from "react";
-import { ChevronLeft, Phone, MessageCircle, MapPin } from "lucide-react";
-import { STATUS_STEPS } from "../../data";
+import { DRIVER_DELIVERIES, STATUS_STEPS } from "../../data";
+import { ArrowLeft, Phone, MessageCircle, Check, Navigation } from "lucide-react";
 
 export default function DriverDeliveryDetail({ goTo, deliveryId }) {
-  const [stepIndex, setStepIndex] = useState(0); // would be fetched from data
+  const delivery = DRIVER_DELIVERIES.find((d) => d.id === deliveryId) || DRIVER_DELIVERIES[0];
+  const [status, setStatus] = useState(delivery.status);
+  const currentIndex = STATUS_STEPS.findIndex((s) => s.key === status);
 
-  const handlePickup = () => setStepIndex(1);
-  const handleDeliver = () => setStepIndex(3);
+  const advance = () => {
+    const next = STATUS_STEPS[Math.min(currentIndex + 1, STATUS_STEPS.length - 1)];
+    setStatus(next.key);
+  };
 
   return (
-    <div className="px-5 pt-6 pb-28 h-full overflow-y-auto">
-      <div className="flex items-center gap-3 mb-5">
-        <button onClick={() => goTo("driverDeliveries")} className="text-navy">
-          <ChevronLeft size={22} />
-        </button>
-        <h1 className="font-display font-bold text-lg text-navy">Delivery {deliveryId}</h1>
-      </div>
+    <div className="p-5 md:p-10 max-w-3xl mx-auto fade-up pb-24 md:pb-10">
+      <button
+        onClick={() => goTo("driverDeliveries")}
+        className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate hover:text-route mb-6"
+      >
+        <ArrowLeft className="w-4 h-4" /> Back to deliveries
+      </button>
 
-      {/* Timeline */}
-      <div className="bg-white rounded-xl2 shadow-card p-4 mb-5">
-        <div className="flex items-center">
+      <div className="flex items-center justify-between mb-1">
+        <h1 className="font-display font-800 text-2xl md:text-3xl text-navy tracking-tight">
+          {delivery.id}
+        </h1>
+        <span className="text-xs font-semibold text-route">{delivery.eta}</span>
+      </div>
+      <p className="text-sm text-slate mb-8">Customer: {delivery.customer}</p>
+
+      <div className="bg-white rounded-xl2 shadow-card border border-sky-mid p-6 mb-6">
+        <div className="flex items-center justify-between">
           {STATUS_STEPS.map((step, i) => (
-            <div key={step.key} className="flex-1 flex items-center last:flex-none">
-              <div className="flex flex-col items-center gap-1.5">
-                <div className={`w-3 h-3 rounded-full ${i <= stepIndex ? "bg-route" : "bg-sky-mid"}`} />
-                <span className={`text-[9.5px] font-medium text-center w-14 leading-tight ${i <= stepIndex ? "text-navy" : "text-slate/60"}`}>
-                  {step.label}
-                </span>
-              </div>
-              {i < STATUS_STEPS.length - 1 && (
-                <div className={`h-[2px] flex-1 -mt-4 ${i < stepIndex ? "bg-route" : "bg-sky-mid"}`} />
+            <div key={step.key} className="flex-1 flex flex-col items-center relative">
+              {i > 0 && (
+                <div
+                  className={`absolute top-3.5 right-1/2 w-full h-0.5 ${
+                    i <= currentIndex ? "bg-route" : "bg-sky-mid"
+                  }`}
+                />
               )}
+              <div
+                className={`relative z-10 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
+                  i <= currentIndex ? "bg-route text-white" : "bg-sky-mid text-slate"
+                }`}
+              >
+                {i < currentIndex ? <Check className="w-3.5 h-3.5" /> : i + 1}
+              </div>
+              <span
+                className={`mt-2 text-[11px] font-medium text-center ${
+                  i <= currentIndex ? "text-navy" : "text-slate"
+                }`}
+              >
+                {step.label}
+              </span>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Addresses */}
-      <div className="bg-white rounded-xl2 shadow-card p-4 mb-5">
-        <div className="flex gap-3">
-          <div className="flex flex-col items-center pt-1">
-            <MapPin size={14} className="text-route" />
-            <div className="w-[1.5px] flex-1 bg-sky-mid my-1" />
-            <MapPin size={14} className="text-signal" />
-          </div>
-          <div className="flex-1 space-y-3 text-sm">
-            <div>
-              <p className="text-[10px] font-mono uppercase text-slate">Pickup</p>
-              <p className="font-medium text-ink">Unit 29, Pongola River Drive, Norkem Park</p>
-            </div>
-            <div>
-              <p className="text-[10px] font-mono uppercase text-slate">Drop‑off</p>
-              <p className="font-medium text-ink">44 Rivonia Rd, Sandton</p>
-            </div>
-          </div>
+      <div className="bg-white rounded-xl2 shadow-card border border-sky-mid p-6 space-y-4 mb-6">
+        <div>
+          <p className="text-xs text-slate">Pickup</p>
+          <p className="text-sm font-medium text-ink">{delivery.pickup}</p>
+        </div>
+        <div>
+          <p className="text-xs text-slate">Drop-off</p>
+          <p className="text-sm font-medium text-ink">{delivery.dropoff}</p>
+        </div>
+        <div className="flex gap-3 pt-2">
+          <button className="flex-1 flex items-center justify-center gap-1.5 border border-sky-mid rounded-xl py-2.5 text-sm font-semibold text-ink hover:border-route hover:text-route transition-colors">
+            <Phone className="w-4 h-4" /> Call customer
+          </button>
+          <button className="flex-1 flex items-center justify-center gap-1.5 border border-sky-mid rounded-xl py-2.5 text-sm font-semibold text-ink hover:border-route hover:text-route transition-colors">
+            <MessageCircle className="w-4 h-4" /> Message
+          </button>
         </div>
       </div>
 
-      {/* Actions */}
-      <div className="space-y-3">
-        {stepIndex === 0 && (
-          <button
-            onClick={handlePickup}
-            className="w-full bg-route text-white font-display font-bold rounded-full py-3"
-          >
-            Mark as picked up
-          </button>
-        )}
-        {stepIndex === 1 && (
-          <button
-            onClick={handleDeliver}
-            className="w-full bg-green-500 text-white font-display font-bold rounded-full py-3"
-          >
-            Mark as delivered
-          </button>
-        )}
-        {stepIndex < 2 && (
-          <div className="flex gap-3">
-            <button className="flex-1 bg-sky text-route font-medium rounded-full py-2.5 flex items-center justify-center gap-1">
-              <MessageCircle size={16} /> Chat
-            </button>
-            <button className="flex-1 bg-navy text-white font-medium rounded-full py-2.5 flex items-center justify-center gap-1">
-              <Phone size={16} /> Call
-            </button>
-          </div>
-        )}
+      <div className="flex gap-3">
+        <button className="flex-1 flex items-center justify-center gap-2 border border-sky-mid rounded-xl py-3.5 text-sm font-semibold text-ink hover:border-route hover:text-route transition-colors">
+          <Navigation className="w-4 h-4" /> Navigate
+        </button>
+        <button
+          onClick={advance}
+          disabled={currentIndex === STATUS_STEPS.length - 1}
+          className="flex-1 bg-route hover:bg-navy-light disabled:bg-sky-mid disabled:text-slate transition-colors text-white font-semibold text-sm py-3.5 rounded-xl shadow-card"
+        >
+          {currentIndex === STATUS_STEPS.length - 1
+            ? "Delivered"
+            : `Mark as ${STATUS_STEPS[currentIndex + 1].label}`}
+        </button>
       </div>
     </div>
   );

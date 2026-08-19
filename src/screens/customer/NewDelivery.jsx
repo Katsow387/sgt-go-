@@ -1,96 +1,113 @@
 import { useState } from "react";
-import { ChevronLeft, MapPin, Circle, Package2 } from "lucide-react";
-
-const SIZES = [
-  { key: "small", label: "Small", desc: "Bag, box < 5kg", price: 85 },
-  { key: "medium", label: "Medium", desc: "Appliance, < 20kg", price: 165 },
-  { key: "large", label: "Large", desc: "Furniture, bulk", price: 320 },
-];
+import { RETAILERS, SAVED_PLACES } from "../../data";
+import { ArrowLeft, MapPin, Package } from "lucide-react";
 
 export default function NewDelivery({ goTo }) {
-  const [pickup, setPickup] = useState("Unit 29, Pongola River Drive, Norkem Park");
-  const [dropoff, setDropoff] = useState("");
-  const [size, setSize] = useState("medium");
+  const [retailer, setRetailer] = useState(RETAILERS[0].name);
+  const [pickup, setPickup] = useState(SAVED_PLACES[1]?.detail || "");
+  const [dropoff, setDropoff] = useState(SAVED_PLACES[0]?.detail || "");
+  const [note, setNote] = useState("");
 
-  const selected = SIZES.find((s) => s.key === size);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    goTo("customerTrack");
+  };
 
   return (
-    <div className="px-5 pt-6 pb-28 h-full overflow-y-auto">
-      <div className="flex items-center gap-3 mb-5">
-        <button onClick={() => goTo("home")} className="text-navy">
-          <ChevronLeft size={22} />
-        </button>
-        <h1 className="font-display font-bold text-lg text-navy">Send a package</h1>
-      </div>
+    <div className="p-5 md:p-10 max-w-3xl mx-auto fade-up pb-24 md:pb-10">
+      <button
+        onClick={() => goTo("customerHome")}
+        className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate hover:text-route mb-6"
+      >
+        <ArrowLeft className="w-4 h-4" /> Back
+      </button>
 
-      {/* Route inputs */}
-      <div className="bg-white rounded-xl2 shadow-card p-4 mb-5">
-        <div className="flex gap-3">
-          <div className="flex flex-col items-center pt-2">
-            <Circle size={10} className="text-route fill-route" />
-            <div className="w-[1.5px] flex-1 bg-sky-mid my-1" />
-            <MapPin size={12} className="text-signal" />
+      <h1 className="font-display font-800 text-2xl md:text-3xl text-navy tracking-tight mb-1">
+        New delivery
+      </h1>
+      <p className="text-sm text-slate mb-8">Tell us what to collect and where it's going.</p>
+
+      <form onSubmit={handleSubmit} className="bg-white rounded-xl2 shadow-card border border-sky-mid p-6 md:p-8 space-y-6">
+        <div>
+          <label className="block text-xs font-semibold text-ink mb-2">Retailer</label>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {RETAILERS.map((r) => (
+              <button
+                type="button"
+                key={r.name}
+                onClick={() => setRetailer(r.name)}
+                className={`flex flex-col items-center gap-2 p-3 rounded-xl border text-xs font-semibold transition-colors ${
+                  retailer === r.name
+                    ? "border-route bg-route/5 text-route"
+                    : "border-sky-mid text-ink hover:border-route/50"
+                }`}
+              >
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center font-display font-700 text-white text-xs"
+                  style={{ backgroundColor: r.color }}
+                >
+                  {r.name.charAt(0)}
+                </div>
+                {r.name}
+              </button>
+            ))}
           </div>
-          <div className="flex-1 space-y-3">
-            <div>
-              <label className="text-[10.5px] uppercase tracking-wide text-slate font-mono">
-                Pickup
-              </label>
+        </div>
+
+        <div className="grid sm:grid-cols-2 gap-5">
+          <div>
+            <label className="block text-xs font-semibold text-ink mb-1.5">Pickup location</label>
+            <div className="relative">
+              <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-route" />
               <input
                 value={pickup}
                 onChange={(e) => setPickup(e.target.value)}
-                className="w-full text-[13.5px] font-medium text-ink border-b border-sky-mid pb-1.5 focus:outline-none focus:border-route"
+                required
+                className="w-full pl-10 pr-4 py-3 rounded-xl border border-sky-mid bg-white text-sm focus:outline-none focus:ring-2 focus:ring-route/40 focus:border-route"
               />
             </div>
-            <div>
-              <label className="text-[10.5px] uppercase tracking-wide text-slate font-mono">
-                Drop-off
-              </label>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-ink mb-1.5">Drop-off location</label>
+            <div className="relative">
+              <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-signal" />
               <input
                 value={dropoff}
                 onChange={(e) => setDropoff(e.target.value)}
-                placeholder="Enter delivery address"
-                className="w-full text-[13.5px] font-medium text-ink border-b border-sky-mid pb-1.5 focus:outline-none focus:border-route placeholder:text-slate/60 placeholder:font-normal"
+                required
+                className="w-full pl-10 pr-4 py-3 rounded-xl border border-sky-mid bg-white text-sm focus:outline-none focus:ring-2 focus:ring-route/40 focus:border-route"
               />
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Package size */}
-      <h3 className="font-display font-bold text-sm text-ink mb-2.5">Package size</h3>
-      <div className="space-y-2.5 mb-6">
-        {SIZES.map((s) => (
+        <div>
+          <label className="block text-xs font-semibold text-ink mb-1.5">Package notes (optional)</label>
+          <div className="relative">
+            <Package className="absolute left-3.5 top-3.5 w-4 h-4 text-slate" />
+            <textarea
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              rows={3}
+              placeholder="e.g. 2 boxes, fragile, ~15kg"
+              className="w-full pl-10 pr-4 py-3 rounded-xl border border-sky-mid bg-white text-sm focus:outline-none focus:ring-2 focus:ring-route/40 focus:border-route resize-none"
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between pt-2 border-t border-sky-mid">
+          <div>
+            <p className="text-xs text-slate">Estimated fare</p>
+            <p className="font-display font-800 text-xl text-navy">R 185.00</p>
+          </div>
           <button
-            key={s.key}
-            onClick={() => setSize(s.key)}
-            className={`w-full flex items-center gap-3 rounded-xl px-4 py-3 border-2 transition-colors ${
-              size === s.key ? "border-route bg-sky" : "border-transparent bg-white shadow-card"
-            }`}
+            type="submit"
+            className="bg-route hover:bg-navy-light transition-colors text-white font-semibold text-sm px-8 py-3.5 rounded-xl shadow-card"
           >
-            <span
-              className={`w-9 h-9 rounded-lg flex items-center justify-center ${
-                size === s.key ? "bg-route text-white" : "bg-sky text-route"
-              }`}
-            >
-              <Package2 size={16} />
-            </span>
-            <span className="text-left flex-1">
-              <p className="font-display font-semibold text-[13px] text-ink">{s.label}</p>
-              <p className="text-[11.5px] text-slate">{s.desc}</p>
-            </span>
-            <span className="font-mono font-semibold text-[13px] text-navy">R{s.price}</span>
+            Confirm delivery
           </button>
-        ))}
-      </div>
-
-      <button
-        disabled={!dropoff}
-        onClick={() => goTo("track")}
-        className="w-full bg-navy disabled:bg-slate/40 text-white font-display font-bold text-sm rounded-full py-3.5 flex items-center justify-center gap-2"
-      >
-        Confirm · R{selected.price}.00
-      </button>
+        </div>
+      </form>
     </div>
   );
 }

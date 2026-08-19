@@ -1,95 +1,122 @@
-import { ArrowRight, MapPin, Package, ShieldCheck } from "lucide-react";
-import { RETAILERS, SAVED_PLACES } from "../../data";
+import { RETAILERS, SAVED_PLACES, PAST_ORDERS } from "../../data";
+import PageHeader from "../../components/PageHeader";
+import { Plus, MapPin, ChevronRight, Package } from "lucide-react";
 
-export default function Home({ goTo }) {
+export default function Home({ goTo, user }) {
+  const activeOrder = PAST_ORDERS[0];
+
   return (
-    <div className="px-5 pt-6 pb-28 h-full overflow-y-auto">
-      <div className="flex items-center justify-between mb-5">
-        <div>
-          <p className="text-[11px] uppercase tracking-[0.14em] text-slate font-mono">
-            Segwata Holdings
-          </p>
-          <h1 className="font-display font-bold text-2xl text-navy leading-tight">
-            Morning, Dimakatso
-          </h1>
-        </div>
-        <div className="w-10 h-10 rounded-full bg-navy text-white flex items-center justify-center font-display font-bold text-sm">
-          L
-        </div>
-      </div>
+    <div className="p-5 md:p-10 max-w-6xl mx-auto fade-up pb-24 md:pb-10">
+      <PageHeader
+        eyebrow="Overview"
+        title={`Hi ${user?.name?.split(" ")[0] || "there"}, where to today?`}
+      />
 
-      {/* Hero card */}
-      <button
-        onClick={() => goTo("new")}
-        className="w-full text-left rounded-xl2 bg-gradient-to-br from-navy to-navy-light p-5 shadow-float relative overflow-hidden mb-6"
-      >
-        <svg className="absolute inset-0 w-full h-full opacity-25" viewBox="0 0 300 140" fill="none">
-          <path d="M0 110 Q80 60 150 90 T300 40" stroke="#EAF2FC" strokeWidth="1.5" className="route-line" />
-          <path d="M0 40 Q100 90 180 50 T300 100" stroke="#F5A623" strokeWidth="1.2" className="route-line" />
-        </svg>
-        <div className="relative">
-          <p className="text-sky text-[11px] font-mono uppercase tracking-[0.14em] mb-2">
-            Same-day delivery
-          </p>
-          <h2 className="font-display font-bold text-white text-xl leading-snug mb-4 max-w-[210px]">
-            Get anything picked up and dropped off, today.
-          </h2>
-          <span className="inline-flex items-center gap-2 bg-signal text-navy-deep font-display font-bold text-sm px-4 py-2 rounded-full">
-            Send a package <ArrowRight size={16} />
+      <div className="grid md:grid-cols-3 gap-5">
+        {/* New delivery CTA */}
+        <button
+          onClick={() => goTo("customerNew")}
+          className="md:col-span-2 flex items-center justify-between gap-6 bg-navy rounded-xl2 p-7 text-left text-white shadow-float hover:bg-navy-light transition-colors"
+        >
+          <div>
+            <p className="font-mono text-[11px] uppercase tracking-wider text-signal mb-2">
+              Book a delivery
+            </p>
+            <h2 className="font-display font-800 text-xl md:text-2xl mb-1">
+              Start a new delivery
+            </h2>
+            <p className="text-sm text-sky-mid/80">
+              From Game, Makro, Builders Warehouse, Walmart & more.
+            </p>
+          </div>
+          <div className="w-14 h-14 shrink-0 rounded-full bg-signal flex items-center justify-center">
+            <Plus className="w-7 h-7 text-navy-deep" strokeWidth={2.5} />
+          </div>
+        </button>
+
+        {/* Active order */}
+        <button
+          onClick={() => goTo("customerTrack")}
+          className="bg-white rounded-xl2 p-6 shadow-card border border-sky-mid text-left hover:border-route transition-colors flex flex-col justify-between"
+        >
+          <div>
+            <p className="font-mono text-[11px] uppercase tracking-wider text-route mb-2">
+              In transit
+            </p>
+            <p className="font-display font-700 text-navy text-base mb-1">SGT-48312</p>
+            <p className="text-xs text-slate">Arriving in 14 min</p>
+          </div>
+          <span className="inline-flex items-center gap-1 text-sm font-semibold text-route mt-4">
+            Track live <ChevronRight className="w-4 h-4" />
           </span>
-        </div>
-      </button>
-
-      {/* Saved places */}
-      <div className="mb-6">
-        <h3 className="font-display font-bold text-sm text-ink mb-2.5">Saved places</h3>
-        <div className="space-y-2">
-          {SAVED_PLACES.map((p) => (
-            <div
-              key={p.id}
-              className="flex items-center gap-3 bg-white rounded-xl px-4 py-3 shadow-card"
-            >
-              <div className="w-8 h-8 rounded-full bg-sky flex items-center justify-center text-route shrink-0">
-                <MapPin size={16} />
-              </div>
-              <div className="min-w-0">
-                <p className="font-display font-semibold text-[13px] text-ink">{p.label}</p>
-                <p className="text-[12px] text-slate truncate">{p.detail}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+        </button>
       </div>
 
-      {/* Retail partners */}
-      <div className="mb-6">
-        <h3 className="font-display font-bold text-sm text-ink mb-2.5">
-          Shop from our partner retailers
-        </h3>
-        <div className="grid grid-cols-2 gap-3">
+      {/* Retailers */}
+      <div className="mt-8">
+        <h3 className="font-display font-700 text-navy text-lg mb-4">Popular retailers</h3>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {RETAILERS.map((r) => (
             <button
               key={r.name}
-              onClick={() => goTo("new")}
-              className="bg-white rounded-xl px-4 py-4 shadow-card flex flex-col gap-2 items-start"
+              onClick={() => goTo("customerNew")}
+              className="bg-white rounded-xl p-5 shadow-card border border-sky-mid hover:-translate-y-0.5 hover:border-route transition-all flex flex-col items-center gap-3"
             >
-              <span
-                className="w-8 h-8 rounded-lg flex items-center justify-center"
-                style={{ backgroundColor: `${r.color}1A` }}
+              <div
+                className="w-11 h-11 rounded-full flex items-center justify-center font-display font-700 text-white text-sm"
+                style={{ backgroundColor: r.color }}
               >
-                <Package size={16} style={{ color: r.color }} />
-              </span>
-              <span className="font-display font-semibold text-[12.5px] text-ink">{r.name}</span>
+                {r.name.charAt(0)}
+              </div>
+              <span className="text-xs font-semibold text-ink text-center">{r.name}</span>
             </button>
           ))}
         </div>
       </div>
 
-      <div className="flex items-center gap-2.5 bg-sky rounded-xl px-4 py-3">
-        <ShieldCheck size={18} className="text-route shrink-0" />
-        <p className="text-[11.5px] text-navy-light leading-snug">
-          Every delivery is covered under our loss-adjusting partnership with AOS Assessing.
-        </p>
+      {/* Saved places + recent orders */}
+      <div className="grid md:grid-cols-2 gap-5 mt-8">
+        <div className="bg-white rounded-xl2 p-6 shadow-card border border-sky-mid">
+          <h3 className="font-display font-700 text-navy text-base mb-4">Saved places</h3>
+          <div className="space-y-3">
+            {SAVED_PLACES.map((p) => (
+              <div key={p.id} className="flex items-start gap-3">
+                <div className="w-9 h-9 rounded-full bg-sky flex items-center justify-center shrink-0">
+                  <MapPin className="w-4 h-4 text-route" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-ink">{p.label}</p>
+                  <p className="text-xs text-slate">{p.detail}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl2 p-6 shadow-card border border-sky-mid">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-display font-700 text-navy text-base">Recent orders</h3>
+            <button
+              onClick={() => goTo("customerOrders")}
+              className="text-xs font-semibold text-route hover:underline"
+            >
+              View all
+            </button>
+          </div>
+          <div className="space-y-3">
+            {PAST_ORDERS.slice(0, 2).map((o) => (
+              <div key={o.id} className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-sky flex items-center justify-center shrink-0">
+                  <Package className="w-4 h-4 text-route" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-ink truncate">{o.retailer}</p>
+                  <p className="text-xs text-slate">{o.date} · {o.total}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

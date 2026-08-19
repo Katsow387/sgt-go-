@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { Home as HomeIcon, PlusCircle, Navigation, Package, User, LayoutGrid, Truck } from "lucide-react";
 import Logo from "./components/Logo";
+import Sidebar from "./components/Sidebar";
 import BottomNav from "./components/BottomNav";
 
 // Customer screens
@@ -19,10 +21,25 @@ import DriverHome from "./screens/driver/DriverHome";
 import DriverDeliveries from "./screens/driver/DriverDeliveries";
 import DriverDeliveryDetail from "./screens/driver/DriverDeliveryDetail";
 
+const CUSTOMER_NAV = [
+  { key: "customerHome", label: "Home", icon: HomeIcon },
+  { key: "customerNew", label: "New", icon: PlusCircle },
+  { key: "customerTrack", label: "Track", icon: Navigation },
+  { key: "customerOrders", label: "Orders", icon: Package },
+  { key: "customerProfile", label: "Profile", icon: User },
+];
+
+const DRIVER_NAV = [
+  { key: "driverHome", label: "Home", icon: LayoutGrid },
+  { key: "driverDeliveries", label: "Deliveries", icon: Truck },
+];
+
+const FULL_BLEED_SCREENS = ["signIn", "signUp", "roleSelect"];
+
 export default function App() {
   const [user, setUser] = useState(null); // { name, email, role }
-  const [screen, setScreen] = useState("signIn"); // screens: signIn, signUp, roleSelect, customerHome, customerNew, customerTrack, customerOrders, customerProfile, driverHome, driverDeliveries, driverDeliveryDetail
-  const [deliveryId, setDeliveryId] = useState(null); // for driver detail
+  const [screen, setScreen] = useState("signIn");
+  const [deliveryId, setDeliveryId] = useState(null);
 
   const handleSignIn = (userData) => {
     setUser(userData);
@@ -35,12 +52,19 @@ export default function App() {
   };
 
   const handleRoleSelect = (role) => {
-    setUser({ ...user, role });
-    if (role === "customer") {
-      setScreen("customerHome");
-    } else {
-      setScreen("driverHome");
-    }
+    setUser((prev) => ({ ...prev, role }));
+    setScreen(role === "customer" ? "customerHome" : "driverHome");
+  };
+
+  const handleSignOut = () => {
+    setUser(null);
+    setScreen("signIn");
+  };
+
+  const handleSwitchRole = () => {
+    const nextRole = user?.role === "customer" ? "driver" : "customer";
+    setUser((prev) => ({ ...prev, role: nextRole }));
+    setScreen(nextRole === "customer" ? "customerHome" : "driverHome");
   };
 
   const goTo = (target, payload) => {
@@ -52,7 +76,6 @@ export default function App() {
     }
   };
 
-  // Determine which screen to render
   const renderScreen = () => {
     switch (screen) {
       case "signIn":
@@ -64,7 +87,7 @@ export default function App() {
 
       // Customer screens
       case "customerHome":
-        return <Home goTo={goTo} />;
+        return <Home goTo={goTo} user={user} />;
       case "customerNew":
         return <NewDelivery goTo={goTo} />;
       case "customerTrack":
@@ -72,11 +95,11 @@ export default function App() {
       case "customerOrders":
         return <Orders goTo={goTo} />;
       case "customerProfile":
-        return <Profile />;
+        return <Profile user={user} onSignOut={handleSignOut} onSwitchRole={handleSwitchRole} />;
 
       // Driver screens
       case "driverHome":
-        return <DriverHome goTo={goTo} />;
+        return <DriverHome goTo={goTo} user={user} />;
       case "driverDeliveries":
         return <DriverDeliveries goTo={goTo} />;
       case "driverDeliveryDetail":
@@ -87,29 +110,38 @@ export default function App() {
     }
   };
 
-  // BottomNav only for customer screens (you can add a driver nav too)
-  const showBottomNav = screen.startsWith("customer") && screen !== "customerNew";
+  // Full-bleed auth/onboarding screens render with no chrome at all.
+  if (FULL_BLEED_SCREENS.includes(screen)) {
+    return renderScreen();
+  }
+
+  const isDriver = screen.startsWith("driver");
+  const navItems = isDriver ? DRIVER_NAV : CUSTOMER_NAV;
+  const activeKey = screen;
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-[#DCE6F5] font-body py-6">
-      <div className="relative w-[375px] h-[780px] max-h-[92vh] bg-sky rounded-[2.4rem] shadow-float overflow-hidden border-[6px] border-navy-deep">
-        {/* Status bar */}
-        <div className="h-8 flex items-center justify-between px-6 bg-transparent absolute top-0 left-0 right-0 z-20">
-          <span className="text-[11px] font-mono font-semibold text-navy">9:41</span>
-          <div className="scale-90"><Logo size="text-sm" /></div>
+    <div className="min-h-screen w-full bg-sky flex">
+      <Sidebar
+        items={navItems}
+        active={activeKey}
+        onChange={(key) => setScreen(key)}
+        user={user}
+        onSignOut={handleSignOut}
+      />
+
+      <div className="flex-1 min-w-0 flex flex-col">
+        {/* Mobile top bar */}
+        <div className="md:hidden h-16 flex items-center justify-between px-5 bg-white border-b border-sky-mid sticky top-0 z-20">
+          <Logo size="text-base" />
+          <div className="w-8 h-8 rounded-full bg-navy flex items-center justify-center font-display font-700 text-white text-xs">
+            {(user?.name || "U").charAt(0).toUpperCase()}
+          </div>
         </div>
 
-        <div className="h-full pt-8 relative">
-          {renderScreen()}
-        </div>
-
-        {showBottomNav && (
-          <BottomNav
-            active={screen === "customerNew" ? "new" : screen.replace("customer", "").toLowerCase()}
-            onChange={(tab) => setScreen(`customer${tab.charAt(0).toUpperCase() + tab.slice(1)}`)}
-          />
-        )}
+        <main className="flex-1 min-w-0">{renderScreen()}</main>
       </div>
+
+      <BottomNav items={navItems} active={activeKey} onChange={(key) => setScreen(key)} />
     </div>
   );
 }

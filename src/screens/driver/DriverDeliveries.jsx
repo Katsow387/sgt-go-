@@ -1,50 +1,46 @@
-import { ChevronLeft, MapPin, PackageCheck, Clock } from "lucide-react";
+import { DRIVER_DELIVERIES } from "../../data";
+import PageHeader from "../../components/PageHeader";
+import { ChevronRight, MapPin } from "lucide-react";
 
-const DELIVERIES = [
-  { id: "SGT-48312", pickup: "Unit 29, Norkem Park", dropoff: "44 Rivonia Rd", status: "picked", eta: "14 min" },
-  { id: "SGT-48305", pickup: "Makro, Midrand", dropoff: "Sandton City", status: "pending", eta: "30 min" },
-  { id: "SGT-48298", pickup: "Builders, Kempton", dropoff: "Boksburg", status: "delivered", eta: "-" },
-];
+const STATUS_STYLES = {
+  pending: "bg-amber-50 text-amber-600",
+  picked: "bg-sky text-route",
+  delivered: "bg-emerald-50 text-emerald-600",
+};
 
 export default function DriverDeliveries({ goTo }) {
-  const statusIcon = (status) => {
-    if (status === "picked") return <PackageCheck size={16} className="text-signal" />;
-    if (status === "pending") return <Clock size={16} className="text-slate" />;
-    return <CheckCircle size={16} className="text-green-500" />;
-  };
-
   return (
-    <div className="px-5 pt-6 pb-28 h-full overflow-y-auto">
-      <div className="flex items-center gap-3 mb-5">
-        <button onClick={() => goTo("driverHome")} className="text-navy">
-          <ChevronLeft size={22} />
-        </button>
-        <h1 className="font-display font-bold text-lg text-navy">My deliveries</h1>
-      </div>
+    <div className="p-5 md:p-10 max-w-4xl mx-auto fade-up pb-24 md:pb-10">
+      <PageHeader eyebrow="Driver" title="Deliveries" />
 
-      <div className="space-y-3">
-        {DELIVERIES.map((d) => (
+      <div className="bg-white rounded-xl2 shadow-card border border-sky-mid divide-y divide-sky-mid">
+        {DRIVER_DELIVERIES.map((d) => (
           <button
             key={d.id}
             onClick={() => goTo("driverDeliveryDetail", { id: d.id })}
-            className="w-full text-left bg-white rounded-xl2 shadow-card p-4 flex items-center gap-3"
+            className="w-full flex items-center gap-4 p-5 text-left hover:bg-sky/50 transition-colors"
           >
-            <div className="w-10 h-10 rounded-full bg-sky flex items-center justify-center text-route shrink-0">
-              {statusIcon(d.status)}
+            <div className="w-11 h-11 rounded-full bg-sky flex items-center justify-center shrink-0">
+              <MapPin className="w-5 h-5 text-route" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-display font-semibold text-[13px] text-ink">
-                {d.id} · {d.status}
-              </p>
-              <p className="text-[11.5px] text-slate truncate">
-                <MapPin size={12} className="inline mr-1" />
-                {d.pickup} → {d.dropoff}
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="font-semibold text-ink text-sm">{d.customer}</p>
+                <span className="text-[11px] font-mono text-slate">{d.id}</span>
+              </div>
+              <p className="text-xs text-slate truncate">{d.dropoff}</p>
             </div>
-            <div className="text-right">
-              <p className="text-[11px] text-slate">ETA</p>
-              <p className="font-mono font-semibold text-[13px] text-route">{d.eta}</p>
+            <div className="text-right shrink-0">
+              <p className="text-xs font-semibold text-route mb-1">{d.eta}</p>
+              <span
+                className={`inline-block text-[11px] font-semibold px-2.5 py-1 rounded-full capitalize ${
+                  STATUS_STYLES[d.status] || "bg-sky text-navy"
+                }`}
+              >
+                {d.status}
+              </span>
             </div>
+            <ChevronRight className="w-4 h-4 text-slate shrink-0" />
           </button>
         ))}
       </div>
